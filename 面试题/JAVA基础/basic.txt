@@ -1,0 +1,81 @@
+1.java的基本类型，以及个自己占用多少字节？
+java有8中基本类型：
+int      4字节 32比特
+short    2字节 16比特
+char     2字节 16比特
+boolean  xxx   1比特
+float    4字节 32比特
+double   8字节 64比特
+long     8字节 64比特
+-------------------------------------------------------------------------
+2.String类能不能被继承，为什么？
+不能被继承，因为String是final类。
+-------------------------------------------------------------------------
+3.String,StringBuilder,StringBuffer的区别
+String
+1.字符串常量，不可改变；
+2.final类，不可继承；
+3.覆盖了equals和hashCode方法；
+StringBuffer
+1.字符串可变量；
+2.效率低，但线程安全；
+3.可以用append动态构造字符串；
+StringBuilder
+与StringBuffer相比，线程不安全，但是效率高；
+------------------------------------------------------------------------
+4.ArrayList,LinkedList的区别
+1.ArrayList基于动态数组，LinkedList基于连表；
+2.对于随机访问get和set方法，ArrayList效率高；
+3.对于add和remove方法，快慢看情况；一般在小容量时，区别不打，在大容量是，到1/10容量以后，ArrayList效率更高。
+5.java 初始化的顺序。
+静态变量->静态块->变量->初始化块->构造函数
+6.有顺序的Map类
+TreeMap和LinkedHashMap
+TreeMap:基于Comparator构造器；
+LinkedHahMap:基于插入的顺序；
+7.抽象类与接口的区别：
+相同点：
+都代表系统抽象层，都不能被实例化，都包含抽象方法；
+不同点：
+抽象类只能单继承，接口可以多实现；
+抽象类用于定义一些共性内容，接口主要用来扩展对象功能；
+抽象类的方法修饰符可以自定义，接口的方法修饰符是固定的。
+8.hashMap，hashTable,TreeMap，ConcurrentHashMap的区别和联系
+1.hashMap,hashTable
+都是基于哈希表实现的，每个元素都是一个key--value对，对内部通过单链表解决冲突问题，容量不足时会自动增长，实现了Serializable接口，它支持序列化，实现了Cloneable接口，能被克隆。
+hashMap 继承AbstractMap,hashTable继承Dictionary
+hashtable默认容量是11，hashMap默认容量是16
+hashtable扩容为原来2倍+1，hashMap为原来的2倍；
+hashMap线程不安全，hashtable线程安全；
+concurrentHashMap是线程安全的hashMap，底层数据结构为数组+连表+红黑树；
+TreeMap是基于红黑树的实现，根据comparator进行排序；
+9.JAVA8 的 ConcurrentHashMap 为什什么放弃了了分段锁，有什什么问题吗
+加入多个分段锁浪费内存空间。
+生产环境中， map 在放入时竞争同一个锁的概率非常小，分段锁反而会造成更新等操作的长时间等待。
+为了提高 GC 的效率;
+使用synchronized+CAS原则进行插入；
+10.IO 模型有哪些，讲讲你理理解的 nio ，他和 bio， aio 的区别是啥，谈谈 reactor 模型
+AVA BIO：同步并阻塞，服务器实现模式为一个连接一个线程，即客户端有连接请求时服务器端就需要启动一个线程并处理，如果这个连接不做任何事情会造成不必要的开销，当然可以通过线程池机制改善
+JAVA NIO：同步非阻塞，服务器实现模式为一个请求一个线程，即客户端发送的连接请求都会注册到多路复用器上，多路复用器轮询到连接有IO请求时才启动一个线程进行处理
+JAVA AIO(NIO2)：异步非阻塞，服务器实现模式为一个有效请求一个线程，客户端的I/O请求都是由OS先完成了再通知服务器应用去启动线程进行处理
+BIO方式适用于连接数目比较小且固定的架构，这种方式对服务器资源要求比较高，并发局限于应用中;
+NIO方式适用于连接数目多且连接比较短（轻操作）的架构，比如聊天服务器，并发局限于应用中，编程比较复杂;
+AIO方式使用于连接数目多且连接比较长（重操作）的架构，比如相册服务器，充分调用OS参与并发操作，编程比较复杂.
+
+NIO基于Reactor，当socket有流可读或可写入socket，操作系统会相应的通知引用程序进行处理，应用再将流读取到缓冲区或写入操作系统。
+nio只有acceptor的服务线程是堵塞进行的，其他读写线程是通过注册事件的方式，有读写事件激活时才调用线程资源区执行，不会一直堵塞等着读写操作，Reactor的瓶颈主要在于acceptor的执行，读写事件也是在这一块分发.
+AIO需要一个链接注册读写事件和回调方法，当进行读写操作时，只须直接调用API的read或write方法即可，这两种方法均为异步，即，read/write方法都是异步的，完成后会主动调用回调函数.
+11.Java nio 3 个重要组件是哪⼏几个？ buffer 怎么从写模式切换到读模式？两种模式下的position, limit, capacity 有区别吗
+buffer缓冲区，channel通道，selector多路复用器。
+用flip()方法可以从写模式切换到读模式，将limit设置为当前的position，position设置为0，mark设置为-1。
+
+12.反射的原理，反射创建类实例的三种方式是什么
+利用.class文件，重建一个类的各个部分。
+Java的反射机制的实现要借助于4个类：class，Constructor，Field，Method；其中class代表的时类对 象，Constructor－类的构造器对象，Field－类的属性对象，Method－类的方法对象。通过这四个对象我们可以粗略的看到一个类的各个组 成部分。
+class class1 = object.class;
+class class2 = object.getClass();
+class class3 = Class.forName(“全限定名”);
+13.反射中， Class.forName 和 ClassLoader 区别
+在java中Class.forName()和ClassLoader都可以对类进行加载。ClassLoader就是遵循双亲委派模型最终调用启动类加载器的类加载器，实现的功能是“通过一个类的全限定名来获取描述此类的二进制字节流”，获取到二进制流后放到JVM中。Class.forName()方法实际上也是调用的CLassLoader来实现的。
+Class.forName()对对象进行了初始化，而ClassLoader只是将二进制文件加载到JVM中。
+14.
